@@ -23,18 +23,5 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Check files
-        run: |
-          pwd
-          ls -la
-          ls -la src
-          ls -la tests
-
-      - name: Check Python import
-        run: |
-          python3 -c "import sys; print(sys.path)"
-          python3 -c "import src; print(src.__file__)"
-          python3 -c "from src.utils import add; print(add(10, 5))"
-
       - name: Run tests
-        run: pytest
+        run: python -m pytest
