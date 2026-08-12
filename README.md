@@ -1,6 +1,6 @@
 # Calculator Project
 
-A simple Python calculator project created to understand **Python project structure, modules, unit testing, and GitHub Actions CI**.
+A simple Python calculator project created to understand **Python project structure, reusable modules, unit testing with pytest, and GitHub Actions CI**.
 
 ## 📁 Project Structure
 
@@ -27,15 +27,15 @@ calculator-project/
 
 ### `.github/workflows/`
 
-Contains GitHub Actions workflow files.
+Contains the GitHub Actions workflow.
 
-* `test-python.yml` — Automatically sets up Python and runs the automated tests.
+* `test-python.yml` — Manually triggers the Python testing workflow.
 
 ### `src/`
 
 Contains the application source code.
 
-* `__init__.py` — Makes `src` a Python package so modules inside `src` can be imported using statements such as `from src.utils import add`.
+* `__init__.py` — Makes `src` a Python package.
 * `app.py` — Main application file.
 * `utils.py` — Contains reusable calculator functions.
 
@@ -105,7 +105,7 @@ Multiplication: 50
 Division: 2.0
 ```
 
-## 🧪 Running Tests
+## 🧪 Running Tests Locally
 
 Run the tests from the project root:
 
@@ -119,11 +119,27 @@ Expected result:
 4 passed
 ```
 
-Using `python -m pytest` ensures that Python executes pytest as a module from the project root, allowing the `src` package to be imported correctly.
+The tests are located in:
+
+```text
+tests/test_app.py
+```
+
+and import the calculator functions from:
+
+```text
+src/utils.py
+```
+
+using:
+
+```python
+from src.utils import add, subtract, multiply, divide
+```
 
 ## 🔄 GitHub Actions CI
 
-This project uses **GitHub Actions** to automatically run the Python tests.
+This project uses **GitHub Actions** to automatically prepare the Python environment and execute the automated tests.
 
 The workflow is located at:
 
@@ -131,41 +147,215 @@ The workflow is located at:
 .github/workflows/test-python.yml
 ```
 
-The workflow is triggered by:
+### Workflow Trigger
+
+The workflow uses:
 
 ```yaml
-on:
-  push:
-  workflow_dispatch:
+on: workflow_dispatch
 ```
 
-### Workflow Process
+This means the workflow is triggered **manually**.
+
+It does **not** automatically run when code is pushed to the repository.
+
+### How to Run the Workflow
+
+1. Open the GitHub repository.
+2. Go to the **Actions** tab.
+3. Select **Python Tests**.
+4. Click **Run workflow**.
+5. Select the branch if required.
+6. Click **Run workflow**.
+
+## 🔧 GitHub Actions Workflow
+
+The current workflow is:
+
+```yaml
+name: Python Tests
+
+on: workflow_dispatch
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest
+```
+
+## 🔍 Workflow Explanation
+
+### 1. Workflow Name
+
+```yaml
+name: Python Tests
+```
+
+Defines the name displayed in the GitHub Actions interface.
+
+### 2. Manual Trigger
+
+```yaml
+on: workflow_dispatch
+```
+
+Allows the workflow to be started manually from the GitHub Actions UI.
+
+### 3. Permissions
+
+```yaml
+permissions:
+  contents: read
+```
+
+Grants the workflow read-only access to repository contents.
+
+### 4. Job
+
+```yaml
+jobs:
+  test:
+```
+
+Defines a job named `test`.
+
+### 5. Runner
+
+```yaml
+runs-on: ubuntu-latest
+```
+
+GitHub provides a temporary Ubuntu runner to execute the job.
+
+### 6. Checkout Repository
+
+```yaml
+- name: Checkout repository
+  uses: actions/checkout@v6
+```
+
+Checks out the repository code into the GitHub Actions runner workspace.
+
+After this step, the runner can access:
 
 ```text
-git push
-    ↓
-GitHub Repository
-    ↓
-GitHub Actions
-    ↓
-Checkout Repository
-    ↓
-Setup Python 3.12
-    ↓
-Install Dependencies
-    ↓
+src/
+tests/
+requirements.txt
+README.md
+```
+
+### 7. Setup Python
+
+```yaml
+- name: Setup Python
+  uses: actions/setup-python@v6
+  with:
+    python-version: "3.12"
+```
+
+Sets up Python 3.12 on the Ubuntu runner.
+
+### 8. Install Dependencies
+
+```yaml
+- name: Install dependencies
+  run: pip install -r requirements.txt
+```
+
+Reads `requirements.txt` and installs the required Python packages.
+
+In this project:
+
+```text
+requirements.txt
+        ↓
+      pytest
+        ↓
+   Installed on runner
+```
+
+### 9. Run Tests
+
+```yaml
+- name: Run tests
+  run: python -m pytest
+```
+
+Runs pytest using Python.
+
+The test flow is:
+
+```text
 python -m pytest
-    ↓
-Run tests
-    ↓
+       ↓
+tests/
+       ↓
+test_app.py
+       ↓
+Import functions from src/utils.py
+       ↓
+Execute test cases
+       ↓
 PASS / FAIL
 ```
 
-The workflow can also be started manually using the **Run workflow** button through `workflow_dispatch`.
+## 🔄 Complete GitHub Actions Flow
 
-## 🔗 Python Package Structure
+```text
+User
+ │
+ │ Manually clicks "Run workflow"
+ ▼
+GitHub Actions
+ │
+ ▼
+Create Ubuntu Runner
+ │
+ ▼
+Checkout Repository
+ │
+ ▼
+Setup Python 3.12
+ │
+ ▼
+Install requirements.txt
+ │
+ ▼
+Run python -m pytest
+ │
+ ▼
+tests/test_app.py
+ │
+ ├── Test add()
+ ├── Test subtract()
+ ├── Test multiply()
+ └── Test divide()
+ │
+ ▼
+PASS ✅ / FAIL ❌
+```
 
-The `src` directory contains an `__init__.py` file:
+## 🐍 Python Package Structure
+
+The `src` directory contains:
 
 ```text
 src/
@@ -174,9 +364,9 @@ src/
 └── utils.py
 ```
 
-This allows `src` to be treated as a Python package.
+The `__init__.py` file allows `src` to be treated as a Python package.
 
-Therefore, the test file can import functions from `utils.py` using:
+Therefore, `test_app.py` can import functions using:
 
 ```python
 from src.utils import add, subtract, multiply, divide
@@ -192,7 +382,7 @@ tests/test_app.py
 src.utils
        │
        ▼
-utils.py
+src/utils.py
        │
        ├── add()
        ├── subtract()
@@ -200,53 +390,82 @@ utils.py
        └── divide()
 ```
 
-## 🎯 Purpose of This Project
+## 🎯 Learning Objectives
 
-This project is mainly for learning:
+This project demonstrates:
 
 * Python project structure
-* Python packages and `__init__.py`
 * Python modules
+* Python packages
+* `__init__.py`
 * Reusable functions
-* Unit testing with pytest
+* Unit testing
+* pytest
 * `requirements.txt`
-* Git and GitHub
+* Git
+* GitHub
 * GitHub Actions
 * Workflow triggers
-* CI (Continuous Integration)
+* `workflow_dispatch`
+* GitHub Actions runners
+* `actions/checkout`
+* `actions/setup-python`
+* CI fundamentals
 * Automated testing
 
-## 📚 Learning Flow
+## 📚 Key Concepts Learned
+
+### Repository
+
+The GitHub repository contains the application code, tests, dependencies, documentation, and GitHub Actions workflow.
+
+### Runner
+
+The runner is the temporary machine provided by GitHub to execute the workflow.
+
+### Workflow
+
+The YAML file under:
 
 ```text
-Write Python Code
-       ↓
-Create Tests
-       ↓
-Push Code to GitHub
-       ↓
-GitHub Actions Triggered
-       ↓
-Ubuntu Runner
-       ↓
+.github/workflows/
+```
+
+defines what GitHub Actions should execute.
+
+### Job
+
+The `test` job runs on:
+
+```yaml
+runs-on: ubuntu-latest
+```
+
+### Steps
+
+The job contains individual steps:
+
+```text
+Checkout
+   ↓
 Setup Python
-       ↓
+   ↓
 Install Dependencies
-       ↓
-Run pytest
-       ↓
-Tests PASS / FAIL
+   ↓
+Run Tests
 ```
 
 ## 📝 Future Improvements
 
-Possible future improvements include:
+Possible improvements include:
 
 * Add more calculator operations
 * Add more test cases
 * Add code coverage
-* Add linting
+* Add Python linting
+* Add `push` trigger
+* Add pull request testing
+* Build a Python package
 * Build a Docker image
-* Add a Docker workflow
-* Add deployment through GitHub Actions
-* Publish the application as a Python package
+* Add Docker-based CI
+* Add deployment stages
