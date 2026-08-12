@@ -1,4 +1,3 @@
-# calculator-project
 # Calculator Project
 
 A simple Python calculator project created to understand **Python project structure, unit testing, and GitHub Actions CI**.
