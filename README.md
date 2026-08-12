@@ -1,6 +1,6 @@
 # Calculator Project
 
-A simple Python calculator project created to understand **Python project structure, unit testing, and GitHub Actions CI**.
+A simple Python calculator project created to understand **Python project structure, modules, unit testing, and GitHub Actions CI**.
 
 ## 📁 Project Structure
 
@@ -12,6 +12,7 @@ calculator-project/
 │       └── test-python.yml
 │
 ├── src/
+│   ├── __init__.py
 │   ├── app.py
 │   └── utils.py
 │
@@ -24,10 +25,17 @@ calculator-project/
 
 ## 📌 Project Components
 
+### `.github/workflows/`
+
+Contains GitHub Actions workflow files.
+
+* `test-python.yml` — Automatically sets up Python and runs the automated tests.
+
 ### `src/`
 
 Contains the application source code.
 
+* `__init__.py` — Makes `src` a Python package so modules inside `src` can be imported using statements such as `from src.utils import add`.
 * `app.py` — Main application file.
 * `utils.py` — Contains reusable calculator functions.
 
@@ -44,12 +52,6 @@ Contains the Python dependencies required by the project.
 ```text
 pytest
 ```
-
-### `.github/workflows/`
-
-Contains GitHub Actions workflow files.
-
-* `test-python.yml` — Automatically runs the Python tests.
 
 ### `README.md`
 
@@ -91,7 +93,7 @@ pip install -r requirements.txt
 ### 3. Run the application
 
 ```bash
-python src/app.py
+python3 src/app.py
 ```
 
 Expected output:
@@ -105,21 +107,23 @@ Division: 2.0
 
 ## 🧪 Running Tests
 
-Run:
+Run the tests from the project root:
 
 ```bash
-pytest
+python -m pytest
 ```
 
-If all tests pass, you should see output similar to:
+Expected result:
 
 ```text
 4 passed
 ```
 
+Using `python -m pytest` ensures that Python executes pytest as a module from the project root, allowing the `src` package to be imported correctly.
+
 ## 🔄 GitHub Actions CI
 
-This project uses **GitHub Actions** to automatically run the tests.
+This project uses **GitHub Actions** to automatically run the Python tests.
 
 The workflow is located at:
 
@@ -146,46 +150,92 @@ GitHub Actions
     ↓
 Checkout Repository
     ↓
-Setup Python
+Setup Python 3.12
     ↓
 Install Dependencies
     ↓
-Run pytest
+python -m pytest
+    ↓
+Run tests
     ↓
 PASS / FAIL
 ```
 
 The workflow can also be started manually using the **Run workflow** button through `workflow_dispatch`.
 
+## 🔗 Python Package Structure
+
+The `src` directory contains an `__init__.py` file:
+
+```text
+src/
+├── __init__.py
+├── app.py
+└── utils.py
+```
+
+This allows `src` to be treated as a Python package.
+
+Therefore, the test file can import functions from `utils.py` using:
+
+```python
+from src.utils import add, subtract, multiply, divide
+```
+
+The relationship is:
+
+```text
+tests/test_app.py
+       │
+       │ imports
+       ▼
+src.utils
+       │
+       ▼
+utils.py
+       │
+       ├── add()
+       ├── subtract()
+       ├── multiply()
+       └── divide()
+```
+
 ## 🎯 Purpose of This Project
 
 This project is mainly for learning:
 
 * Python project structure
+* Python packages and `__init__.py`
 * Python modules
 * Reusable functions
 * Unit testing with pytest
 * `requirements.txt`
 * Git and GitHub
 * GitHub Actions
-* CI (Continuous Integration)
 * Workflow triggers
+* CI (Continuous Integration)
 * Automated testing
 
 ## 📚 Learning Flow
 
 ```text
-Python Code
-    ↓
-Write Tests
-    ↓
+Write Python Code
+       ↓
+Create Tests
+       ↓
 Push Code to GitHub
-    ↓
-GitHub Actions
-    ↓
-Automated Tests
-    ↓
-PASS / FAIL
+       ↓
+GitHub Actions Triggered
+       ↓
+Ubuntu Runner
+       ↓
+Setup Python
+       ↓
+Install Dependencies
+       ↓
+Run pytest
+       ↓
+Tests PASS / FAIL
 ```
 
 ## 📝 Future Improvements
@@ -199,3 +249,4 @@ Possible future improvements include:
 * Build a Docker image
 * Add a Docker workflow
 * Add deployment through GitHub Actions
+* Publish the application as a Python package
